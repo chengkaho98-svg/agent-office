@@ -80,6 +80,8 @@ export interface ProviderAdapter<S = undefined, P = undefined> {
   prepare?(floor: ProviderFloor): P;
   /** Its command line and environment for one run. */
   launch(input: LaunchInput<S, P>): LaunchPlan;
+  /** Context attached to tasks sent through the office's prompt action (not raw terminal input). */
+  formatPrompt?(h: WorkerHandle<S>, text: string, cwd: string): string;
   /** A run of one of its workers in `cwd` is over (it ended, or the worker was sent home): what launch put in that folder can go. */
   exited?(h: WorkerHandle<S>, cwd: string): void;
   /** How it runs: in a terminal (the default), or over ACP with the office drawing its terminal (see dsh.ts). */
@@ -100,6 +102,8 @@ export interface ProviderAdapter<S = undefined, P = undefined> {
   /** The provider whose hook route its workers report on, when not their own (a custom --agent speaks Claude Code's). */
   hooksAs?: AgentProvider;
   screen?: {
+    /** A provider's terminal title can carry its own live status (before display cleanup). */
+    title?(h: WorkerHandle<S>, title: string): void;
     /** It reports progress with OSC 9;4 (0 = idle): that catches a turn ending without a hook (Esc). */
     progress?: boolean;
     /**

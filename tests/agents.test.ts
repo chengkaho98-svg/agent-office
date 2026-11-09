@@ -92,7 +92,7 @@ test('model validation follows the provider', () => {
   assert.match(validateWorkerModel('agent', 'codex', '--yolo') ?? '', /Invalid Codex model/);
   assert.match(validateWorkerModel('agent', 'codex', 'gpt 5.5') ?? '', /Invalid Codex model/);
   // Custom still takes none.
-  assert.match(validateWorkerModel('agent', 'custom', 'anything') ?? '', /Claude Code, OpenCode, Codex, Grok, Muse, DeepSeek Harness, Pi or Cursor/);
+  assert.match(validateWorkerModel('agent', 'custom', 'anything') ?? '', /Claude Code, OpenCode, Codex, Grok, Muse, DeepSeek Harness, Pi, Hermes Bot Mode or Cursor/);
 });
 
 test('reasoning effort joins Claude for DeepSeek Harness', () => {
@@ -107,7 +107,7 @@ test('reasoning effort joins Claude for DeepSeek Harness', () => {
   assert.match(validateWorkerEffort('agent', 'custom', 'high') ?? '', /Claude Code, OpenCode, Codex, Grok, Muse, DeepSeek Harness or Pi/);
 });
 
-test('every provider the office knows the CLI of takes a model and (but for Cursor) an effort, with the fields to pick them', () => {
+test('every known CLI has fields for its supported model and effort options', () => {
   for (const provider of AGENT_PROVIDERS) {
     const meta = PROVIDER_META[provider];
     if (provider === 'custom') {
@@ -119,7 +119,7 @@ test('every provider the office knows the CLI of takes a model and (but for Curs
     }
     assert.ok(meta.validModel && meta.invalidModel, `${provider} takes a model`);
     // Cursor's effort is part of its model id (`model[effort=high]`), so it has no effort field of its own.
-    if (provider === 'cursor') assert.equal(meta.takesEffort, undefined);
+    if (provider === 'cursor' || provider === 'hermes') assert.equal(meta.takesEffort, undefined);
     else assert.ok(meta.takesEffort, `${provider} takes an effort`);
     assert.ok(meta.models?.unset && meta.models.hint, `${provider} has its model field`);
     // A model picked from a list has one to pick from; a typed one says what's wrong with a bad one.

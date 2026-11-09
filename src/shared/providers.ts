@@ -4,7 +4,12 @@
 //
 // Browser-safe: no node imports, the hire dialog reads this too.
 
-export const AGENT_PROVIDERS = ['claude', 'opencode', 'codex', 'grok', 'muse', 'dsh', 'pi', 'cursor', 'custom'] as const;
+export const AGENT_PROVIDERS = ['claude', 'opencode', 'codex', 'grok', 'muse', 'dsh', 'pi', 'hermes', 'cursor', 'custom'] as const;
+
+/** A bot is a profile, never a path or a model override. */
+export function isValidHermesProfile(value: unknown): value is string {
+  return typeof value === 'string' && /^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(value);
+}
 
 export type AgentProvider = (typeof AGENT_PROVIDERS)[number];
 
@@ -133,6 +138,9 @@ export interface ModelOption {
 
 /** How the hire dialog asks for a provider's model (see client ui/provider.ts). */
 export interface ModelField {
+  /** Some providers select a bot identity rather than a model. */
+  label?: string;
+  showOnHire?: boolean;
   /** Picked from a list (the fixed ones, or its catalogue), or typed in, with its catalogue as suggestions. */
   pick: 'list' | 'typed';
   /** The ones it always has (Claude Code's aliases). */
@@ -325,6 +333,18 @@ export const PROVIDER_META: Record<AgentProvider, ProviderMeta> = {
     name: 'Custom',
     unpicked: 'A custom --agent runs as it is: set its model and effort in --agent-args.',
     usage: { note: 'Usage is untracked unless compatible Claude Code hooks report it.' },
+  },
+  hermes: {
+    label: 'Hermes', name: 'Hermes Bot Mode', bin: 'hermes',
+    validModel: isValidHermesProfile,
+    invalidModel: 'Select an existing Hermes bot profile',
+    models: {
+      label: 'Bot', showOnHire: true,
+      pick: 'list', catalog: true, unset: 'Active bot (pinned when hired)',
+      max: 64, invalid: 'Use a profile name: letters, digits, underscores or hyphens (up to 64 characters).',
+      hint: 'Select a Hermes Desktop bot. This desk opens its existing Bot Chat, with its own identity and memory. Task results use its configured Discord home channel.',
+    },
+    usage: { note: 'Live Bot Chat is shown in the terminal. Hermes owns the bot, its memory and billing. Discord reporting is performed by the bot at task completion.' },
   },
 };
 

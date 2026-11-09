@@ -513,8 +513,8 @@ export class WorkerManager {
     if (!w.pty) return 'Worker is not running';
     const clean = text.replace(/\r\n?/g, '\n').trim();
     if (!clean) return 'Empty prompt';
-    // Bracketed paste keeps multi-line prompts in one message, then Enter submits.
-    w.pty.write(`\x1b[200~${clean}\x1b[201~`);
+    const message = providerAdapter(w.info.provider)?.formatPrompt?.(this.handleOf(w), clean, this.cwd(w.info)) ?? clean;
+    w.pty.write(`\x1b[200~${message}\x1b[201~`);
     setTimeout(() => w.pty?.write('\r'), 120);
     w.info.activity = truncate(clean, 80);
     this.tasks.notePrompt(w, clean);
@@ -766,7 +766,6 @@ export class WorkerManager {
     this.emitUpdate(w);
   }
 
-  /** A fresh screen for a worker's terminal, reading its progress reports (Claude's) and title off it. */
   private newTerm(w: Worker): HeadlessTerminal {
     return newTerm(w, {
       progress: providerAdapter(w.info.provider)?.screen?.progress ? (busy) => this.onProgress(w, busy) : undefined,
@@ -775,6 +774,7 @@ export class WorkerManager {
   }
 
   private setTitle(w: Worker, title: string) {
+    if (w.info.kind === 'agent') providerAdapter(w.info.provider)?.screen?.title?.(this.handleOf(w), title);
     const clean = title.replace(/^[^\p{L}\p{N}]+/u, '').trim();
     if (clean && clean !== w.info.title && !titleNoise(clean)) {
       w.info.title = clean;
