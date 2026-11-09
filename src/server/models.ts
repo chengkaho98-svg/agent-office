@@ -5,6 +5,7 @@ import { spawn } from 'node:child_process';
 import { closeSync, mkdtempSync, openSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { fetchHermesProfiles } from './hermes.js';
 import { AGENT_EFFORTS, isValidCodexModel, isValidCursorModel, isValidGrokModel, isValidOpenCodeModel, type AgentProvider, type ModelOption } from '../shared/providers.js';
 
 /** A CLI that lists its models in a second or two takes ten times that on a busy machine. */
@@ -179,6 +180,7 @@ type ModelLister = (command: string, cwd: string, runner?: ModelCommandRunner) =
 
 /** The providers whose CLI lists its models (ProviderMeta.models.catalog), and how each is asked. */
 export const MODEL_LISTERS: Partial<Record<AgentProvider, ModelLister>> = {
+  hermes: (command, cwd, runner = runModelCommand) => fetchHermesProfiles(command, cwd, runner),
   opencode: fetchOpenCodeModels,
   codex: fetchCodexModels,
   grok: fetchGrokModels,

@@ -7,6 +7,7 @@ import { cursor } from './cursor.js';
 import { custom } from './custom.js';
 import { dsh } from './dsh.js';
 import { grok } from './grok.js';
+import { hermes } from './hermes.js';
 import { muse } from './muse.js';
 import { opencode } from './opencode.js';
 import { pi } from './pi.js';
@@ -19,6 +20,7 @@ export const PROVIDERS: Record<AgentProvider, SomeAdapter> = {
   opencode,
   codex,
   grok,
+  hermes,
   muse,
   dsh,
   pi,

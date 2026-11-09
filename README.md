@@ -3,6 +3,8 @@
 > Expect breaking changes between releases: keys that move, screens that get redrawn, features that come and go
 > without notice. If it's close to what you want, fork or clone it and bend it into what you need it to be.
 
+Hermes Desktop users can hire an existing bot and open its live **Bot Chat** from an office desk. See [Hermes Bot Mode](docs/hermes-bot-mode.md) for shared sessions, profile identities, and results sent to each bot's configured Discord channel.
+
 <div align="center">
 
 *"Whatever you do, work heartily, as for the Lord and not for men."* — Colossians 3:23 (ESV)

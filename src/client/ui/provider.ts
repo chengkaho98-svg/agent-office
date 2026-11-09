@@ -210,13 +210,14 @@ export function agentFields(project: ProjectInfo | null, id: string, initial: Ag
   const paint = () => {
     const m = meta();
     const field = m.models;
+    modelLabel.textContent = field?.label ?? 'Model';
     const catalogue = catalogues.get(value());
     note.textContent = providerUsageNote(value());
     modelLabel.classList.toggle('hidden', !field);
     modelSelect.classList.toggle('hidden', !field || typed());
     modelInput.classList.toggle('hidden', !field || !typed());
     modelLabel.htmlFor = typed() ? modelInput.id : modelSelect.id;
-    for (const control of [modelSelect, modelInput]) control.setAttribute('aria-label', `${m.label} model`);
+    for (const control of [modelSelect, modelInput]) control.setAttribute('aria-label', `${m.label} ${(field?.label ?? 'model').toLowerCase()}`);
     modelInput.placeholder = field?.unset ?? '';
     modelInput.maxLength = field?.max ?? 256;
     effortLabel.textContent = m.effortLabel ?? 'Effort';
@@ -224,8 +225,8 @@ export function agentFields(project: ProjectInfo | null, id: string, initial: Ag
     effortSelect.classList.toggle('hidden', !m.takesEffort);
     effortSelect.setAttribute('aria-label', m.effortLabel ? `${m.label} ${m.effortLabel.toLowerCase()} level` : `${m.label} reasoning effort`);
     if (!field) hint.textContent = m.unpicked ?? '';
-    else if (field.catalog && catalogue?.request) hint.textContent = `Loading ${m.label} models…`;
-    else if (field.catalog && catalogue?.failed) hint.textContent = `${m.label}’s models couldn’t be listed: leave it empty for its default, or type a model id.`;
+    else if (field.catalog && catalogue?.request) hint.textContent = `Loading ${m.label} ${(field.label ?? 'model').toLowerCase()}s…`;
+    else if (field.catalog && catalogue?.failed) hint.textContent = `${m.label}’s ${(field.label ?? 'model').toLowerCase()}s couldn’t be listed: leave it empty for its default, or type an id.`;
     else hint.textContent = field.hint;
     fields.classList.toggle('hidden', !field && !m.takesEffort && !hint.textContent);
     paintEffort();
@@ -290,7 +291,7 @@ export function agentFields(project: ProjectInfo | null, id: string, initial: Ag
  * that opens the provider, model and effort fields to pick another for this one.
  */
 export function providerPicker(project: ProjectInfo | null, id: string, label = 'Worker'): ProviderPicker {
-  let editing = false;
+  let editing = !!PROVIDER_META[officeChoice(project).provider].models?.showOnHire;
   const fields = agentFields(project, id, officeChoice(project));
   fields.element.classList.add('hidden');
   const current = h('span.provider-current');
